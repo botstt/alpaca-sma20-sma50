@@ -9,7 +9,7 @@ const alpaca = new Alpaca({
 });
 
 let sma20, sma50;
-let lastOrder = 'BUY';
+let lastOrder = 'SELL';
 
 // Check if the market is open now.
 alpaca.getClock().then((clock) => {
@@ -52,7 +52,7 @@ const client = alpaca.data_ws;
 client.onConnect(() => {
     client.subscribe(['AM.SPY']);
 
-    setTimeout(() => client.disconnect(), 600 * 1000);
+    setTimeout(() => client.disconnect(), 6000*1000);
 });
 
 client.onStockAggMin((subject, data) => {
