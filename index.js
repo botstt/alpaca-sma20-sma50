@@ -50,13 +50,16 @@ initializeAverages();
 const client = alpaca.data_ws;
 
 client.onConnect(() => {
-    client.subscribe(['AM.SPY']);
+    console.log("Connected!");
 
-    setTimeout(() => client.disconnect(), 6000*1000);
+    client.subscribe(['alpacadatav1/AM.SPY']);
+
+    setTimeout(() => client.disconnect(), 6000 * 1000);
 });
 
 client.onStockAggMin((subject, data) => {
-    const nextValue = JSON.parse(data)[0].closePrice;
+
+    const nextValue = data.closePrice;
 
     const next20 = sma20.nextValue(nextValue);
     const next50 = sma50.nextValue(nextValue);
