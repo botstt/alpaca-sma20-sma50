@@ -11,6 +11,20 @@ const alpaca = new Alpaca({
 let sma20, sma50;
 let lastOrder = 'BUY';
 
+// Check if the market is open now.
+alpaca.getClock().then((clock) => {
+    console.log('The market is ' + (clock.is_open ? 'open.' : 'closed.'));
+});
+
+// Get the market operation hours.
+const date = new Date();
+alpaca.getCalendar({
+    start: date,
+    end: date
+}).then((calendars) => {
+    console.log(`The market opened at ${calendars[0].open} and closed at ${calendars[0].close} on ${date}.`)
+});
+
 async function initializeAverages() {
     const initialData = await alpaca.getBars(
         '1Min',
@@ -21,7 +35,7 @@ async function initializeAverages() {
         }
     );
 
-    const closeValues = _.map(initialData.SPY, (bar) => bar.c);
+    const closeValues = _.map(initialData.SPY, (bar) => bar.closePrice);
 
     sma20 = new SMA({ period: 20, values: closeValues });
     sma50 = new SMA({ period: 50, values: closeValues });
@@ -42,7 +56,7 @@ client.onConnect(() => {
 });
 
 client.onStockAggMin((subject, data) => {
-    const nextValue = JSON.parse(data)[0].c;
+    const nextValue = JSON.parse(data)[0].closePrice;
 
     const next20 = sma20.nextValue(nextValue);
     const next50 = sma50.nextValue(nextValue);
