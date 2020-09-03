@@ -10,6 +10,7 @@ const alpaca = new Alpaca({
 
 let sma20, sma50;
 let lastOrder = 'SELL';
+let symbol = 'SPY';
 
 // Check if the market is open now.
 alpaca.getClock().then((clock) => {
@@ -28,14 +29,14 @@ alpaca.getCalendar({
 async function initializeAverages() {
     const initialData = await alpaca.getBars(
         '1Min',
-        'SPY',
+        symbol,
         {
             limit: 50,
             until: new Date()
         }
     );
 
-    const closeValues = _.map(initialData.SPY, (bar) => bar.closePrice);
+    const closeValues = _.map(initialData[symbol], (bar) => bar.closePrice);
 
     sma20 = new SMA({ period: 20, values: closeValues });
     sma50 = new SMA({ period: 50, values: closeValues });
@@ -52,9 +53,9 @@ const client = alpaca.data_ws;
 client.onConnect(() => {
     console.log("Connected!");
 
-    client.subscribe(['alpacadatav1/AM.SPY']);
+    client.subscribe(['alpacadatav1/AM.' + symbol]);
 
-    setTimeout(() => client.disconnect(), 6000 * 1000);
+    setTimeout(() => client.disconnect(), 25200 * 1000);    // Runs 7 hours and disconnects.
 });
 
 client.onStockAggMin((subject, data) => {
@@ -69,7 +70,7 @@ client.onStockAggMin((subject, data) => {
 
     if (next20 > next50 && lastOrder !== 'BUY') {
         alpaca.createOrder({
-            symbol: 'SPY',
+            symbol: symbol,
             qty: 1,
             side: 'buy',
             type: 'market',
@@ -80,7 +81,7 @@ client.onStockAggMin((subject, data) => {
         console.log('\nBUY\n');
     } else if (next20 < next50 && lastOrder !== 'SELL') {
         alpaca.createOrder({
-            symbol: 'SPY',
+            symbol: symbol,
             qty: 1,
             side: 'sell',
             type: 'market',
