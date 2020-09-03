@@ -55,7 +55,7 @@ client.onConnect(() => {
 
     client.subscribe(['alpacadatav1/AM.' + symbol]);
 
-    setTimeout(() => client.disconnect(), 6000 * 1000);
+    setTimeout(() => client.disconnect(), 25200 * 1000);    // Runs 7 hours and disconnects.
 });
 
 client.onStockAggMin((subject, data) => {
